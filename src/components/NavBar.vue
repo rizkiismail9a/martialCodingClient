@@ -22,27 +22,27 @@
           </li>
         </ul>
         <ul class="navbar-nav mb-2 mb-lg-0">
-          <li class="nav-item dropdown">
+          <li class="nav-item dropdown" v-if="isAuthenticated">
             <a
               class="nav-link dropdown-toggle"
               href="#"
               data-bs-toggle="dropdown"
               aria-expanded="false"
-              >Dropdown</a
+              >{{ user.first_name }}</a
             >
             <ul class="dropdown-menu">
               <li class="text-center mb-2">
-                <router-link :to="{ name: 'user' }" class="dropdown-item" href="#"
-                  >Username Here</router-link
-                >
+                <router-link :to="{ name: 'user' }" class="dropdown-item" href="#">{{
+                  user.username
+                }}</router-link>
               </li>
 
               <li class="text-center">
-                <button class="btn btn-danger" href="#">Logout</button>
+                <button class="btn btn-danger" href="#" @click="logout">Logout</button>
               </li>
             </ul>
           </li>
-          <li class="nav-item">
+          <li class="nav-item" v-if="!isAuthenticated">
             <router-link
               :to="{ name: 'login' }"
               class="nav-link active"
@@ -51,7 +51,7 @@
               >Login</router-link
             >
           </li>
-          <li class="nav-item">
+          <li class="nav-item" v-if="!isAuthenticated">
             <router-link
               :to="{ name: 'register' }"
               class="nav-link active"
@@ -65,3 +65,23 @@
     </div>
   </nav>
 </template>
+<script setup lang="ts">
+import { useAuthStore } from '@/stores/auth'
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+const router = useRouter()
+const authStore = useAuthStore()
+const user = computed(() => {
+  return authStore.userDetail
+})
+const isAuthenticated = computed(() => {
+  return authStore.getAuthenticated
+})
+
+const logout = async () => {
+  await authStore
+    .logout()
+    .then(() => router.push('/'))
+    .catch((err) => console.log(err.message))
+}
+</script>
